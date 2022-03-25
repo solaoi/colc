@@ -21,7 +21,7 @@ brew install solaoi/tap/colc
 brew upgrade colc
 ```
 
-### For Others (Binary Releases)
+### For Linux (Binary Releases)
 
 you can download a binary release
 [here](https://github.com/solaoi/colc/releases).
@@ -30,14 +30,12 @@ you can download a binary release
 # Install with wget or curl
 ## set the latest version on releases.
 VERSION=v1.0.0
-## set the Environment you use.(linux, darwin, windows)
-OS=linux
 ## case you use wget
-wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_${OS}_amd64.tar.gz
+wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
-curl -LO  https://github.com/solaoi/colc/releases/download/$VERSION/colc_${OS}_amd64.tar.gz
+curl -LO  https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## extract
-tar xvf ./colc_${OS}_amd64.tar.gz
+tar xvf ./colc_linux_amd64.tar.gz
 ## move it to a location in your $PATH, such as /usr/local/bin.
 mv ./colc /usr/local/bin/
 ```

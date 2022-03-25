@@ -20,10 +20,6 @@ jobs:
             platform: darwin
             cpu: amd64
             target: x86_64-apple-darwin
-          - name: windows-latest
-            platform: windows
-            cpu: amd64
-            target: x86_64-pc-windows-msvc
 
     steps:
       - uses: actions/checkout@v2
@@ -49,6 +45,7 @@ jobs:
 
   homebrew:
     runs-on: ubuntu-latest
+    needs: release
     steps:
       - name: Update Homebrew Formula
         uses: izumin5210/action-homebrew-tap@releases/v0
