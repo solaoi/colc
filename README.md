@@ -4,6 +4,12 @@ Colc is a CommandLineTool to take statistics from a column of a file.
 
 This is the simple wrapper of `awk` command, so quick:)
 
+## Usage
+
+```
+colc [column] [file.csv|tsv|txt]
+```
+
 ## Install
 
 ### For MacOS (Homebrew)
@@ -36,12 +42,6 @@ tar xvf ./colc_${OS}_amd64.tar.gz
 mv ./colc /usr/local/bin/
 ```
 
-## Usage
-
-```
-colc [column] [file.csv|tsv|txt]
-```
-
 ### Example
 
 There is a some.csv.
@@ -54,11 +54,13 @@ There is a some.csv.
 
 Then you wanna get the second column's statistics.
 
-do it!
+Just do it!
 
 ```
 colc 2 some.csv
 ```
+
+<img width="374" alt="スクリーンショット 2022-03-25 14 54 43" src="https://user-images.githubusercontent.com/46414076/160063842-04edc218-658d-46e7-887b-c4c913ea1660.png">
 
 ## Development
 
