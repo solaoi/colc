@@ -1,0 +1,58 @@
+name: release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os.name }}
+    strategy:
+      matrix:
+        deno-version: [v1.x]
+        os:
+          - name: ubuntu-latest
+            platform: linux
+            cpu: amd64
+            target: x86_64-unknown-linux-gnu
+          - name: macOS-latest
+            platform: darwin
+            cpu: amd64
+            target: x86_64-apple-darwin
+          - name: windows-latest
+            platform: windows
+            cpu: amd64
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Use Deno ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - name: Compile executable for target ${{ matrix.os.target }}
+        run: deno compile --allow-run --allow-env --target ${{ matrix.os.target }} colc.ts
+
+      - name: Package executable
+        run: tar -czvf colc_${{ matrix.os.platform }}_${{ matrix.os.cpu }}.tar.gz colc
+
+      - name: Upload package to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: colc_${{ matrix.os.platform }}_${{ matrix.os.cpu }}.tar.gz
+
+      - name: Update Homebrew Formula
+        uses: izumin5210/action-homebrew-tap@releases/v0
+        with:
+          tap: solaoi/homebrew-tap
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tap-token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          release-branch: main
+          formula: colc.rb
+          commit-message: Brew formula update for colc version ${{ env.RELEASE_VERSION }}
