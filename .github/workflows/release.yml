@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  test:
+  release:
     runs-on: ${{ matrix.os.name }}
     strategy:
       matrix:
@@ -47,6 +47,9 @@ jobs:
         with:
           files: colc_${{ matrix.os.platform }}_${{ matrix.os.cpu }}.tar.gz
 
+  homebrew:
+    runs-on: ubuntu-latest
+    steps:
       - name: Update Homebrew Formula
         uses: izumin5210/action-homebrew-tap@releases/v0
         with:
