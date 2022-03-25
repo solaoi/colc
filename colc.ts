@@ -1,4 +1,4 @@
-import { comma, help } from "./utils.ts";
+import { comma, help, startLoading, stopLoading } from "./utils.ts";
 // @deno-types="https://deno.land/x/chalk_deno@v4.1.1-deno/index.d.ts"
 import chalk from "https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js";
 
@@ -30,6 +30,8 @@ cmd.push(
 );
 cmd.push(filename);
 
+const loader = startLoading();
+
 const p = Deno.run({
   cmd,
   stdout: "piped",
@@ -37,6 +39,9 @@ const p = Deno.run({
 });
 
 const { code } = await p.status();
+
+stopLoading(loader);
+
 if (code === 0) {
   const [stddev, mean, sum, count, max, min, stderr, variance] = await p
     .output().then(

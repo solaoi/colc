@@ -12,4 +12,18 @@ const help = () => {
   Deno.exit(1);
 };
 
-export { comma, help };
+const animeFrame = ["\\", "|", "/", "-"];
+const textEncoder = new TextEncoder();
+const startLoading = () => {
+  let x = 0;
+  return setInterval(() => {
+    Deno.stdout.writeSync(textEncoder.encode(`\r${animeFrame[x++]}`));
+    x %= animeFrame.length;
+  }, 250);
+};
+const stopLoading = (loader: number) => {
+  clearInterval(loader);
+  Deno.stdout.writeSync(textEncoder.encode("\u001b[1G\u001b[2K"));
+};
+
+export { comma, help, startLoading, stopLoading };
