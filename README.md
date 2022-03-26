@@ -10,6 +10,13 @@ This command depends these commands(`head|tail|cut|sort|awk`) on bash.
 colc [column] [file.csv|tsv|txt]
 ```
 
+## Option
+
+```
+# show frequency table and histogram
+-b,--binsize <value>
+```
+
 ## Feature
 
 - Quick
@@ -35,7 +42,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.5
+VERSION=v1.0.6
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
@@ -65,6 +72,14 @@ colc 2 some.csv
 ```
 
 <img width="376" alt="スクリーンショット 2022-03-26 12 25 42" src="https://user-images.githubusercontent.com/46414076/160223042-11a0e17e-5cd7-4fba-9f97-313d504592d2.png">
+
+Of course Binsize option works well:)
+
+```
+colc 2 some.csv -b 10
+```
+
+<img width="634" alt="スクリーンショット 2022-03-26 21 45 02" src="https://user-images.githubusercontent.com/46414076/160240079-56200e2f-0589-48ff-b2d0-c40a50852809.png">
 
 ## Development
 

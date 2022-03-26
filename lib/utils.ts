@@ -10,42 +10,49 @@ const comma = (numStr: string) => {
   return ret;
 };
 
-const help = () => {
-  console.log("Usage:\n  colc [column] [file.csv|tsv|txt]");
-  Deno.exit(1);
-};
-
 const getMaxLength = (obj: { [key: string]: string }) => {
   return Object.values(obj).reduce((a, c) => c.length > a.length ? c : a, "")
     .length;
 };
 
-const showHeader = (headerName: string, valueSpace: number) => {
-  const hr = "-".repeat(16 + valueSpace);
-  console.log(`${hr}\n${headerName}\n${hr}`);
+const getMaxNumLength = (obj: { [key: string]: number }) => {
+  return Object.values(obj).reduce((a, c) =>
+    c.toString().length > a.toString().length ? c : a
+  )
+    .toString().length;
 };
 
 const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
   return {
-    println: (key: string, value: string) => {
+    hr: () => {
+      const hr = "-".repeat(keySpace + valueSpace + 2);
+      console.log(hr);
+    },
+    showHeader: (headerName: string) => {
+      const hr = "-".repeat(keySpace + valueSpace + 2);
+      console.log(`${hr}\n${headerName}\n${hr}`);
+    },
+    println: (key: string, value: string, rank?: number) => {
       inverse = !inverse;
       const keySpaces = " ".repeat(keySpace - key.length);
       const valueSpaces = " ".repeat(valueSpace - value.length);
+      const graph = rank ? " ".repeat(rank) : "";
       if (inverse) {
         console.log(
           chalk.inverse(
             chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
               valueSpaces,
-          ),
+          ) + chalk.bgCyanBright(graph),
         );
       } else {
         console.log(
           chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
-            valueSpaces,
+            valueSpaces +
+            chalk.bgCyan(graph),
         );
       }
     },
   };
 };
 
-export { comma, formatter, getMaxLength, help, showHeader };
+export { comma, formatter, getMaxLength, getMaxNumLength };
