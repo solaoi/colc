@@ -42,7 +42,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.7
+VERSION=v1.0.8
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl

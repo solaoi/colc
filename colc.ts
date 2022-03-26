@@ -21,7 +21,7 @@ const binSize: number | null = (() => {
 
 const isCsv = filename.endsWith(".csv");
 const headerName = await runner.run(
-  `head -n 1 ${filename}| cut -f${column} ${isCsv && "-d, "}| tr -d 0-9.-`,
+  `head -n 1 ${filename}| cut -f${column} ${isCsv ? "-d, " : ""}| tr -d 0-9.-`,
 );
 const hasHeader = headerName !== "";
 
@@ -29,10 +29,12 @@ if (binSize === null) {
   const statsCommand = (() => {
     const bash = [];
     if (hasHeader) {
-      bash.push(`tail -n +2 ${filename} | cut -f${column} ${isCsv && "-d, "}`);
+      bash.push(
+        `tail -n +2 ${filename} | cut -f${column} ${isCsv ? "-d, " : ""}`,
+      );
     } else {
       bash.push(
-        `cut -f${column} ${isCsv && "-d, "}${filename} `,
+        `cut -f${column} ${isCsv ? "-d, " : ""}${filename} `,
       );
     }
     bash.push("| sort -n | awk");
@@ -78,10 +80,12 @@ if (binSize === null) {
 const freqCommand = (() => {
   const bash = [];
   if (hasHeader) {
-    bash.push(`tail -n +2 ${filename} | cut -f${column} ${isCsv && "-d, "}`);
+    bash.push(
+      `tail -n +2 ${filename} | cut -f${column} ${isCsv ? "-d, " : ""}`,
+    );
   } else {
     bash.push(
-      `cut -f${column} ${isCsv && "-d, "}${filename} `,
+      `cut -f${column} ${isCsv ? "-d, " : ""}${filename} `,
     );
   }
   bash.push("| awk");
