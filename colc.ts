@@ -24,7 +24,7 @@ const command = (() => {
   }
   bash.push(`${filename} | sort -n | awk`);
   bash.push(
-    `'NR==1{min=$1;max=$1}{min=(min<=$1)?min:$1;max=(max>=$1)?max:$1;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2}'`,
+    `'NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2}'`,
   );
   return bash.join(" ");
 })();
