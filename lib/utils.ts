@@ -23,6 +23,7 @@ const getMaxNumLength = (obj: { [key: string]: number }) => {
 };
 
 const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
+  let sumRank = 0;
   return {
     hr: () => {
       const hr = "-".repeat(keySpace + valueSpace + 2);
@@ -37,18 +38,22 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
       const keySpaces = " ".repeat(keySpace - key.length);
       const valueSpaces = " ".repeat(valueSpace - value.length);
       const graph = rank ? " ".repeat(rank) : "";
+      if (rank) {
+        sumRank += rank;
+      }
+      const graphRank = rank ? ` ${sumRank}%` : "";
       if (inverse) {
         console.log(
           chalk.inverse(
             chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
               valueSpaces,
-          ) + chalk.bgCyanBright(graph),
+          ) + chalk.bgCyanBright(graph) + chalk.white(graphRank),
         );
       } else {
         console.log(
           chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
             valueSpaces +
-            chalk.bgCyan(graph),
+            chalk.bgCyan(graph) + chalk.white(graphRank),
         );
       }
     },
