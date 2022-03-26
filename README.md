@@ -15,6 +15,7 @@ colc [column] [file.csv|tsv|txt]
 ```
 # show frequency table and histogram
 -b,--binsize <number>
+
 # with binsize option, filter frequency
 -f,--filter <number(1-99)>
 ```
@@ -57,7 +58,7 @@ mv ./colc /usr/local/bin/
 
 ### Example
 
-There is a some.csv.
+There is a `some.csv`.
 
 ```
 1,54,3,73,5
@@ -73,7 +74,7 @@ Just do it!
 colc 2 some.csv
 ```
 
-<img width="376" alt="スクリーンショット 2022-03-26 12 25 42" src="https://user-images.githubusercontent.com/46414076/160223042-11a0e17e-5cd7-4fba-9f97-313d504592d2.png">
+<img width="381" alt="スクリーンショット 2022-03-26 23 53 17" src="https://user-images.githubusercontent.com/46414076/160244923-bedc63d3-a516-473f-9cb8-c8c926884c10.png">
 
 Of course Binsize option works well:)
 
@@ -81,13 +82,15 @@ Of course Binsize option works well:)
 colc 2 some.csv -b 10
 ```
 
-<img width="727" alt="スクリーンショット 2022-03-26 22 31 40" src="https://user-images.githubusercontent.com/46414076/160241857-1d81ff1f-07b4-4cdf-9ba2-c04b58393738.png">
+<img width="742" alt="スクリーンショット 2022-03-26 23 54 04" src="https://user-images.githubusercontent.com/46414076/160244950-d543ed29-4709-465d-8b7d-63be530cc29a.png">
 
-There are noises, then filter necessaries
+There are noises, then filter necessaries(>=1%)
 
 ```
 colc 2 some.csv -b 10 -f 1
 ```
+
+<img width="742" alt="スクリーンショット 2022-03-26 23 54 44" src="https://user-images.githubusercontent.com/46414076/160244980-3e938d6a-766b-4f63-865c-8e5caef18739.png">
 
 ## Development
 
