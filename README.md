@@ -2,7 +2,7 @@
 
 Colc is a CommandLineTool to take statistics from a column of a file.
 
-This is the simple wrapper of `awk` command, so quick:)
+This is the simple wrapper of `awk|sort|cut` command, so quick:)
 
 ## Usage
 
@@ -58,7 +58,7 @@ Just do it!
 colc 2 some.csv
 ```
 
-<img width="374" alt="スクリーンショット 2022-03-25 14 54 43" src="https://user-images.githubusercontent.com/46414076/160063842-04edc218-658d-46e7-887b-c4c913ea1660.png">
+<img width="376" alt="スクリーンショット 2022-03-26 12 25 42" src="https://user-images.githubusercontent.com/46414076/160223042-11a0e17e-5cd7-4fba-9f97-313d504592d2.png">
 
 ## Development
 

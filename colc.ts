@@ -1,6 +1,5 @@
-import { comma, help, startLoading, stopLoading } from "./utils.ts";
-// @deno-types="https://deno.land/x/chalk_deno@v4.1.1-deno/index.d.ts"
-import chalk from "https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js";
+import { comma, formatter, getMaxLength, help } from "./lib/utils.ts";
+import { runner } from "./lib/common.ts";
 
 const [rawColumn, filename] = Deno.args;
 const column = Number(rawColumn);
@@ -9,118 +8,55 @@ if (Number.isNaN(column)) {
   help();
 }
 
-const cmd = ["awk"];
-
-if (filename.endsWith(".csv")) {
-  cmd.push("-F");
-  cmd.push(",");
-} else if (filename.endsWith(".tsv")) {
-  cmd.push("-F");
-  cmd.push("\t");
-} else if (filename.endsWith(".txt")) {
-  if (column !== 1) {
+const command = (() => {
+  const bash = [];
+  if (filename.endsWith(".csv")) {
+    bash.push(`cut -f${column} -d,`);
+  } else if (filename.endsWith(".tsv")) {
+    bash.push(`cut -f${column}`);
+  } else if (filename.endsWith(".txt")) {
+    if (column !== 1) {
+      help();
+    }
+    bash.push("cat");
+  } else {
     help();
   }
-} else {
-  help();
-}
+  bash.push(`${filename} | sort -n | awk`);
+  bash.push(
+    `'NR==1{min=$1;max=$1}{min=(min<=$1)?min:$1;max=(max>=$1)?max:$1;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2}'`,
+  );
+  return bash.join(" ");
+})();
 
-cmd.push(
-  `NR==1{min=$${column};max=$${column}}{min=(min<=$${column})?min:$${column};max=(max>=$${column})?max:$${column};sum+=$${column};d[NR]=$${column}}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1)}`,
-);
-cmd.push(filename);
+const [stddev, mean, sum, count, max, min, stderr, variance, median] =
+  await runner
+    .run(command).then((s) => s.trim().split(" "));
 
-const loader = startLoading();
+const stats = {
+  "count": comma(count),
+  "sum": comma(sum),
+  "min": comma(min),
+  "max": comma(max),
+  "mean": comma(mean),
+  "median": comma(median),
+  "stddev(σ)": comma(stddev),
+  "stderr": comma(stderr),
+  "variance(σ^2)": comma(variance),
+  "mean±σ(≒68%)": `${comma(String(Number(mean) - Number(stddev)))}, ${
+    comma(String(Number(mean) + Number(stddev)))
+  }`,
+  "mean±2σ(≒95%)": `${comma(String(Number(mean) - 2 * Number(stddev)))}, ${
+    comma(String(Number(mean) + 2 * Number(stddev)))
+  }`,
+  "mean±3σ(≒99%)": `${comma(String(Number(mean) - 3 * Number(stddev)))}, ${
+    comma(String(Number(mean) + 3 * Number(stddev)))
+  }`,
+};
 
-const p = Deno.run({
-  cmd,
-  stdout: "piped",
-  stderr: "piped",
+const { println } = formatter(14, getMaxLength(stats));
+Object.entries(stats).forEach(([key, value]) => {
+  println(key, value);
 });
-
-const { code } = await p.status();
-
-stopLoading(loader);
-
-if (code === 0) {
-  const [stddev, mean, sum, count, max, min, stderr, variance] = await p
-    .output().then(
-      (s) => new TextDecoder().decode(s),
-    ).then((s) => s.trim().split(" "));
-  const getMaxLength = (arr: string[]) => {
-    return arr.reduce((a, c) => c.length > a.length ? c : a, "").length;
-  };
-  const stats = [
-    comma(count),
-    comma(min),
-    comma(max),
-    comma(mean),
-    comma(sum),
-    comma(stddev),
-    comma(stderr),
-    comma(variance),
-    `${comma(String(Number(mean) - Number(stddev)))}, ${
-      comma(String(Number(mean) + Number(stddev)))
-    }`,
-    `${comma(String(Number(mean) - 2 * Number(stddev)))}, ${
-      comma(String(Number(mean) + 2 * Number(stddev)))
-    }`,
-    `${comma(String(Number(mean) - 3 * Number(stddev)))}, ${
-      comma(String(Number(mean) + 3 * Number(stddev)))
-    }`,
-  ];
-  const maxLength = getMaxLength(stats);
-  const [
-    formatCount,
-    formatMin,
-    formatMax,
-    formatMean,
-    formatSum,
-    formatStddev,
-    formatStderr,
-    formatVariance,
-    formatMean1sigma,
-    formatMean2sigma,
-    formatMean3sigma,
-  ] = stats;
-
-  const format = (keySpace: number, valueSpace: number, inverse = false) => {
-    return (key: string, value: string) => {
-      inverse = !inverse;
-      const keySpaces = " ".repeat(keySpace - key.length);
-      const valueSpaces = " ".repeat(valueSpace - value.length);
-      if (inverse) {
-        console.log(
-          chalk.inverse(
-            chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
-              valueSpaces,
-          ),
-        );
-      } else {
-        console.log(
-          chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
-            valueSpaces,
-        );
-      }
-    };
-  };
-
-  const $ = format(14, maxLength);
-  $("count", formatCount);
-  $("min", formatMin);
-  $("max", formatMax);
-  $("mean", formatMean);
-  $("sum", formatSum);
-  $("stddev(σ)", formatStddev);
-  $("stderr", formatStderr);
-  $("variance(σ^2)", formatVariance);
-  $("mean±σ(≒68%)", formatMean1sigma);
-  $("mean±2σ(≒95%)", formatMean2sigma);
-  $("mean±3σ(≒99%)", formatMean3sigma);
-} else {
-  const rawError = await p.stderrOutput();
-  const errorString = new TextDecoder().decode(rawError);
-  console.log(errorString);
-}
 
 Deno.exit(0);

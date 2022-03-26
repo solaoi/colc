@@ -2,7 +2,8 @@
 
 ## Supported Versions
 
-There is only one version track for colc so all patches will be applied to the latest version only.
+There is only one version track for colc so all patches will be applied to the
+latest version only.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,5 +11,6 @@ There is only one version track for colc so all patches will be applied to the l
 
 ## Reporting a Vulnerability
 
-Critical vulnerabilities can be responsibly disclosed to [mail@aota.blog](mailto:mail@aota.blog).   
+Critical vulnerabilities can be responsibly disclosed to
+[mail@aota.blog](mailto:mail@aota.blog).\
 Bugs and low level vulneratbilities can be reported via repository issues.
