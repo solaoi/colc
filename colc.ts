@@ -7,7 +7,7 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const { _, binsize, b } = parse(Deno.args);
+const { _, binsize, b, filter, f } = parse(Deno.args);
 const [column, filename] = _;
 if (typeof column !== "number" || typeof filename !== "string") {
   console.log("Usage:\n  colc [column] [file.csv|tsv|txt]");
@@ -17,6 +17,11 @@ const binSize: number | null = (() => {
   if (typeof binsize === "number" && binsize > 0) return binsize;
   if (typeof b === "number" && b > 0) return b;
   return null;
+})();
+const filterRank: number = (() => {
+  if (typeof filter === "number" && filter > 0) return filter;
+  if (typeof f === "number" && f > 0) return f;
+  return 0;
 })();
 
 const isCsv = filename.endsWith(".csv");
@@ -121,7 +126,7 @@ hr();
 for (let i = bminNum; i <= bmaxNum; ++i) {
   const f = frequency[i] || 0;
   const rank = Math.round(f / countNum * 100);
-  println(
+  rank >= filterRank && println(
     `${i * binSize}-${(i + 1) * binSize}`,
     `${f}(${rank}%)`,
     rank,

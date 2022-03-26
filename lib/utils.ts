@@ -37,6 +37,7 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
       inverse = !inverse;
       const keySpaces = " ".repeat(keySpace - key.length);
       const valueSpaces = " ".repeat(valueSpace - value.length);
+      const preGraph = rank ? "|" : "";
       const graph = rank ? " ".repeat(rank) : "";
       if (rank) {
         sumRank += rank;
@@ -47,12 +48,12 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
           chalk.inverse(
             chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
               valueSpaces,
-          ) + chalk.bgCyanBright(graph) + chalk.white(graphRank),
+          ) + preGraph + chalk.bgCyanBright(graph) + chalk.white(graphRank),
         );
       } else {
         console.log(
           chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
-            valueSpaces +
+            valueSpaces + preGraph +
             chalk.bgCyan(graph) + chalk.white(graphRank),
         );
       }
