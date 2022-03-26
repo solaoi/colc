@@ -30,7 +30,7 @@ const runner = {
     if (code === 0) {
       return await p
         .output().then(
-          (s) => new TextDecoder().decode(s),
+          (s) => new TextDecoder().decode(s).trim(),
         );
     } else {
       const rawError = await p.stderrOutput();

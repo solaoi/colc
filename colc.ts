@@ -1,4 +1,10 @@
-import { comma, formatter, getMaxLength, help } from "./lib/utils.ts";
+import {
+  comma,
+  formatter,
+  getMaxLength,
+  help,
+  showHeader,
+} from "./lib/utils.ts";
 import { runner } from "./lib/common.ts";
 
 const [rawColumn, filename] = Deno.args;
@@ -7,22 +13,22 @@ const column = Number(rawColumn);
 if (Number.isNaN(column)) {
   help();
 }
+const isCsv = filename.endsWith(".csv");
+const headerName = await runner.run(
+  `head -n 1 ${filename}| cut -f${column} ${isCsv && "-d, "}| tr -d 0-9.-`,
+);
+const hasHeader = headerName !== "";
 
-const command = (() => {
+const statsCommand = (() => {
   const bash = [];
-  if (filename.endsWith(".csv")) {
-    bash.push(`cut -f${column} -d,`);
-  } else if (filename.endsWith(".tsv")) {
-    bash.push(`cut -f${column}`);
-  } else if (filename.endsWith(".txt")) {
-    if (column !== 1) {
-      help();
-    }
-    bash.push("cat");
+  if (hasHeader) {
+    bash.push(`tail -n +2 ${filename} | cut -f${column} ${isCsv && "-d, "}`);
   } else {
-    help();
+    bash.push(
+      `cut -f${column} ${isCsv && "-d, "}${filename} `,
+    );
   }
-  bash.push(`${filename} | sort -n | awk`);
+  bash.push("| sort -n | awk");
   bash.push(
     `'NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2}'`,
   );
@@ -31,7 +37,7 @@ const command = (() => {
 
 const [stddev, mean, sum, count, max, min, stderr, variance, median] =
   await runner
-    .run(command).then((s) => s.trim().split(" "));
+    .run(statsCommand).then((s) => s.split(" "));
 
 const stats = {
   "count": comma(count),
@@ -53,7 +59,7 @@ const stats = {
     comma(String(Number(mean) + 3 * Number(stddev)))
   }`,
 };
-
+hasHeader && showHeader(headerName, getMaxLength(stats));
 const { println } = formatter(14, getMaxLength(stats));
 Object.entries(stats).forEach(([key, value]) => {
   println(key, value);

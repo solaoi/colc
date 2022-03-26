@@ -20,6 +20,11 @@ const getMaxLength = (obj: { [key: string]: string }) => {
     .length;
 };
 
+const showHeader = (headerName: string, valueSpace: number) => {
+  const hr = "-".repeat(16 + valueSpace);
+  console.log(`${hr}\n${headerName}\n${hr}`);
+};
+
 const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
   return {
     println: (key: string, value: string) => {
@@ -43,4 +48,4 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
   };
 };
 
-export { comma, formatter, getMaxLength, help };
+export { comma, formatter, getMaxLength, help, showHeader };

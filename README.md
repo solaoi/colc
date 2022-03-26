@@ -2,13 +2,19 @@
 
 Colc is a CommandLineTool to take statistics from a column of a file.
 
-This is the simple wrapper of `awk|sort|cut` command, so quick:)
+This command depends these commands(`head|tail|cut|sort|awk`) on bash.
 
 ## Usage
 
 ```
 colc [column] [file.csv|tsv|txt]
 ```
+
+## Feature
+
+- Quick
+- Auto detect a separator
+- Auto detect a header row
 
 ## Install
 
@@ -29,7 +35,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.4
+VERSION=v1.0.5
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
