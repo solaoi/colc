@@ -7,7 +7,7 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const { _, binsize, b, filter, f } = parse(Deno.args);
+const { _, binsize, b, filter, f, check, c } = parse(Deno.args);
 const [column, filename] = _;
 if (typeof column !== "number" || typeof filename !== "string") {
   console.log("Usage:\n  colc [column] [file.csv|tsv|txt]");
@@ -23,12 +23,45 @@ const filterRank: number = (() => {
   if (typeof f === "number" && f > 0) return f;
   return 0;
 })();
+const hasCheck: boolean = (() => {
+  if (typeof check === "boolean") return check;
+  if (typeof c === "boolean") return c;
+  return false;
+})();
 
 const isCsv = filename.endsWith(".csv");
 const headerName = await runner.run(
   `head -n 1 ${filename}| cut -f${column} ${isCsv ? "-d, " : ""}| tr -d 0-9.-`,
 );
 const hasHeader = headerName !== "";
+
+if (hasCheck) {
+  const checkCommand = (() => {
+    const bash = [];
+    if (hasHeader) {
+      bash.push(
+        `tail -n +2 ${filename} | cut -f${column} ${isCsv ? "-d, " : ""}`,
+      );
+    } else {
+      bash.push(
+        `cut -f${column} ${isCsv ? "-d, " : ""}${filename} `,
+      );
+    }
+    bash.push(
+      "| awk '{clean=($1 ~/^[0-9.-]+$/);if(!clean)exit}END{print clean}'",
+    );
+    return bash.join(" ");
+  })();
+  const result = await runner
+    .run(checkCommand);
+  const hasError = result === "0";
+  if (hasError) {
+    console.log("dirty:<");
+    Deno.exit(1);
+  }
+  console.log("clean:D");
+  Deno.exit(0);
+}
 
 if (binSize === null) {
   const statsCommand = (() => {

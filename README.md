@@ -13,6 +13,9 @@ colc [column] [file.csv|tsv|txt]
 ## Option
 
 ```
+# check the column is valid
+-c,--check
+
 # show frequency table and histogram
 -b,--binsize <number>
 
@@ -45,7 +48,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.11
+VERSION=v1.0.12
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
@@ -76,7 +79,7 @@ colc 2 some.csv
 
 <img width="381" alt="スクリーンショット 2022-03-26 23 53 17" src="https://user-images.githubusercontent.com/46414076/160244923-bedc63d3-a516-473f-9cb8-c8c926884c10.png">
 
-Of course Binsize option works well:)
+Of course `-b,--binsize` works well:)
 
 ```
 colc 2 some.csv -b 10
@@ -84,13 +87,21 @@ colc 2 some.csv -b 10
 
 <img width="742" alt="スクリーンショット 2022-03-26 23 54 04" src="https://user-images.githubusercontent.com/46414076/160244950-d543ed29-4709-465d-8b7d-63be530cc29a.png">
 
-There are noises, then filter necessaries(>=1%)
+There are noises, then filter necessaries(>=1%) with `-f,--filter`
 
 ```
 colc 2 some.csv -b 10 -f 1
 ```
 
 <img width="742" alt="スクリーンショット 2022-03-26 23 54 44" src="https://user-images.githubusercontent.com/46414076/160244980-3e938d6a-766b-4f63-865c-8e5caef18739.png">
+
+If you wanna check whether the file is valid in advance,
+
+`-c,--check` answers the file is dirty or clean.
+
+```
+colc 2 some.csv -c
+```
 
 ## Development
 
