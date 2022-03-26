@@ -74,7 +74,7 @@ if (binSize === null) {
     }`,
   };
   const { println, showHeader, hr } = formatter(14, getMaxLength(stats));
-  hasHeader && showHeader(headerName);
+  hasHeader ? showHeader(headerName) : hr();
   Object.entries(stats).forEach(([key, value]) => {
     println(key, value);
   });
