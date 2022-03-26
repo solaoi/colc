@@ -79,7 +79,7 @@ Of course Binsize option works well:)
 colc 2 some.csv -b 10
 ```
 
-<img width="634" alt="スクリーンショット 2022-03-26 21 45 02" src="https://user-images.githubusercontent.com/46414076/160240079-56200e2f-0589-48ff-b2d0-c40a50852809.png">
+<img width="693" alt="スクリーンショット 2022-03-26 21 53 48" src="https://user-images.githubusercontent.com/46414076/160240366-5c3516e5-6ee3-407a-8427-b1ea3f7ee7d6.png">
 
 ## Development
 
