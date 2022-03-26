@@ -48,13 +48,13 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
           chalk.inverse(
             chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
               valueSpaces,
-          ) + preGraph + chalk.bgCyanBright(graph) + chalk.white(graphRank),
+          ) + preGraph + chalk.bgCyanBright(graph) + graphRank,
         );
       } else {
         console.log(
           chalk.bold(key) + keySpaces + "| " + chalk.italic(value) +
             valueSpaces + preGraph +
-            chalk.bgCyan(graph) + chalk.white(graphRank),
+            chalk.bgCyan(graph) + graphRank,
         );
       }
     },
