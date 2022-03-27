@@ -121,7 +121,7 @@ if (binSize === null) {
     ...(scottBinsize && { "binsize(Scott's)": scottBinsize }),
   };
   const { println, showHeader, hr } = formatter(
-    sturgesFormulaIsInvalid ? 18 : 17,
+    sturgesFormulaIsInvalid ? 17 : 18,
     getMaxLength(stats),
   );
   hasHeader ? showHeader(headerName) : hr();
