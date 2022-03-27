@@ -77,7 +77,7 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));print stddev,avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,int(1+log(sum)/log(2))}'`,
+      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));print stddev,avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,1+log(NR)/log(2),(3.5*stddev)/(exp(log(NR)/3))}'`,
     );
     return bash.join(" ");
   })();
@@ -98,10 +98,12 @@ if (binSize === null) {
     sigmaMinus2,
     sigmaPlus3,
     sigmaMinus3,
-    suitableBinsize,
+    sturgesBinsize,
+    scottBinsize,
   ] = await runner
     .run(statsCommand).then((s) => s.split(" "));
-
+  const sturgesFormulaIsInvalid = count.split(".")[0].length <= 2 &&
+    parseInt(count) < 30;
   const stats = {
     "count": comma(count),
     "sum": comma(sum),
@@ -115,9 +117,13 @@ if (binSize === null) {
     "mean±σ(≒68%)": `${comma(sigmaMinus1)}, ${comma(sigmaPlus1)}`,
     "mean±2σ(≒95%)": `${comma(sigmaMinus2)}, ${comma(sigmaPlus2)}`,
     "mean±3σ(≒99%)": `${comma(sigmaMinus3)}, ${comma(sigmaPlus3)}`,
-    "binsize(good)": suitableBinsize,
+    ...(!sturgesFormulaIsInvalid && { "binsize(Sturges')": sturgesBinsize }),
+    ...(scottBinsize && { "binsize(Scott's)": scottBinsize }),
   };
-  const { println, showHeader, hr } = formatter(14, getMaxLength(stats));
+  const { println, showHeader, hr } = formatter(
+    sturgesFormulaIsInvalid ? 18 : 17,
+    getMaxLength(stats),
+  );
   hasHeader ? showHeader(headerName) : hr();
   Object.entries(stats).forEach(([key, value]) => {
     println(key, value);
