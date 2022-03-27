@@ -3,7 +3,7 @@ import chalk from "https://deno.land/x/chalk_deno@v4.1.1-deno/source/index.js";
 
 const comma = (numStr: string) => {
   const s = numStr.split(".");
-  let ret = String(s[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+  let ret = (s[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,").toString();
   if (s.length > 1) {
     ret += "." + s[1];
   }
@@ -15,7 +15,7 @@ const getMaxLength = (obj: { [key: string]: string }) => {
     .length;
 };
 
-const getMaxNumLength = (obj: { [key: string]: number }) => {
+const getMaxNumLength = (obj: { [key: string]: bigint }) => {
   return Object.values(obj).reduce((a, c) =>
     c.toString().length > a.toString().length ? c : a
   )

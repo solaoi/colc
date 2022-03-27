@@ -77,14 +77,30 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;print sqrt(s/(NR-1)),avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2}'`,
+      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));print stddev,avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,int(1+log(sum)/log(2))}'`,
     );
     return bash.join(" ");
   })();
 
-  const [stddev, mean, sum, count, max, min, stderr, variance, median] =
-    await runner
-      .run(statsCommand).then((s) => s.split(" "));
+  const [
+    stddev,
+    mean,
+    sum,
+    count,
+    max,
+    min,
+    stderr,
+    variance,
+    median,
+    sigmaPlus1,
+    sigmaMinus1,
+    sigmaPlus2,
+    sigmaMinus2,
+    sigmaPlus3,
+    sigmaMinus3,
+    suitableBinsize,
+  ] = await runner
+    .run(statsCommand).then((s) => s.split(" "));
 
   const stats = {
     "count": comma(count),
@@ -96,15 +112,10 @@ if (binSize === null) {
     "stddev(σ)": comma(stddev),
     "stderr": comma(stderr),
     "variance(σ^2)": comma(variance),
-    "mean±σ(≒68%)": `${comma(String(Number(mean) - Number(stddev)))}, ${
-      comma(String(Number(mean) + Number(stddev)))
-    }`,
-    "mean±2σ(≒95%)": `${comma(String(Number(mean) - 2 * Number(stddev)))}, ${
-      comma(String(Number(mean) + 2 * Number(stddev)))
-    }`,
-    "mean±3σ(≒99%)": `${comma(String(Number(mean) - 3 * Number(stddev)))}, ${
-      comma(String(Number(mean) + 3 * Number(stddev)))
-    }`,
+    "mean±σ(≒68%)": `${comma(sigmaMinus1)}, ${comma(sigmaPlus1)}`,
+    "mean±2σ(≒95%)": `${comma(sigmaMinus2)}, ${comma(sigmaPlus2)}`,
+    "mean±3σ(≒99%)": `${comma(sigmaMinus3)}, ${comma(sigmaPlus3)}`,
+    "binsize(good)": suitableBinsize,
   };
   const { println, showHeader, hr } = formatter(14, getMaxLength(stats));
   hasHeader ? showHeader(headerName) : hr();
@@ -128,7 +139,7 @@ const freqCommand = (() => {
   }
   bash.push("| awk");
   bash.push(
-    `'{b=int($1/${binSize});a[b]++;bmax=b>bmax?b:bmax; bmin=b<bmin?b:bmin}END{freq="";for(i in a)freq=freq "|" i "_" a[i];print NR, freq, bmin, bmax}'`,
+    `'BEGIN{OFMT="%.6f"}{b=int($1/${binSize});a[b]++;bmax=b>bmax?b:bmax;bmin=b<bmin?b:bmin}END{freq="";for(i in a)freq=freq "|" i "_" a[i];print NR, freq, bmin, bmax}'`,
   );
   return bash.join(" ");
 })();
@@ -136,15 +147,15 @@ const freqCommand = (() => {
 const [count, freq, bmin, bmax] = await runner
   .run(freqCommand)
   .then((s) => s.split(" "));
-const bminNum = Number(bmin);
-const bmaxNum = Number(bmax);
-const countNum = Number(count);
-const frequency: { [key: string]: number } = freq.split("|").filter((s) =>
+
+const bminNum = bmin !== "" ? parseInt(bmin) : 0;
+const bmaxNum = parseInt(bmax);
+const frequency: { [key: string]: bigint } = freq.split("|").filter((s) =>
   s !== ""
 )
   .map((s) => s.split("_"))
   .reduce((a, c) => {
-    return { ...a, [c[0]]: Number(c[1]) };
+    return { ...a, [c[0]]: BigInt(c[1]) };
   }, {});
 const maxKeySpace = `${bmaxNum * binSize}-${(bmaxNum + 1) * binSize}`.length;
 const { println, showHeader, hr } = formatter(
@@ -157,8 +168,8 @@ console.log(`binSize: ${binSize}`);
 hr();
 
 for (let i = bminNum; i <= bmaxNum; ++i) {
-  const f = frequency[i] || 0;
-  const rank = Math.round(f / countNum * 100);
+  const f = frequency[i] || 0n;
+  const rank = parseInt(((f * 100n) / BigInt(count)).toString());
   rank >= filterRank && println(
     `${i * binSize}-${(i + 1) * binSize}`,
     `${f}(${rank}%)`,
