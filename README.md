@@ -8,6 +8,11 @@ This command depends these commands(`head|tail|cut|sort|awk`) on bash.
 
 ```
 colc [column] [file.csv|tsv|txt]
+
+*1
+When you set [column,column] on the column parameter,
+you'll get the correlation coefficient of two columns.
+(thie feature don't support below options)
 ```
 
 ## Option
@@ -48,7 +53,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.14
+VERSION=v1.0.15
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl

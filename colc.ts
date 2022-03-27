@@ -9,7 +9,18 @@ import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
 const { _, binsize, b, filter, f, check, c } = parse(Deno.args);
 const [column, filename] = _;
-if (typeof column !== "number" || typeof filename !== "string") {
+const hasTwoColumn = (() => {
+  if (typeof column !== "string") return false;
+  if (column.indexOf(",") === -1) return false;
+  const columns = column.split(",");
+  if (columns.length !== 2) return false;
+  return Number.isInteger(parseInt(columns[0])) &&
+    Number.isInteger(parseInt(columns[1]));
+})();
+
+if (
+  (typeof column !== "number" && !hasTwoColumn) || typeof filename !== "string"
+) {
   console.log("Usage:\n  colc [column] [file.csv|tsv|txt]");
   Deno.exit(1);
 }
@@ -34,6 +45,36 @@ const headerName = await runner.run(
   `head -n 1 ${filename}| cut -f${column} ${isCsv ? "-d, " : ""}| tr -d 0-9.-`,
 );
 const hasHeader = headerName !== "";
+
+if (hasTwoColumn) {
+  const statsCommand = (() => {
+    const bash = [];
+    if (hasHeader) {
+      bash.push(
+        `tail -n +2 ${filename} | cut -f${column} ${isCsv ? "-d, " : ""}`,
+      );
+    } else {
+      bash.push(
+        `cut -f${column} ${isCsv ? "-d, " : ""}${filename} `,
+      );
+    }
+    bash.push("| awk");
+    bash.push(
+      `'BEGIN{OFMT="%.6f"}{split($1,col,",");asum+=col[1];a[NR]=col[1];bsum+=col[2];b[NR]=col[2]}END{amean=asum/NR;bmean=bsum/NR;for(i in a){as+=(a[i]-amean)^2;bs+=(b[i]-bmean)^2;sum+=(a[i]-amean)*(b[i]-bmean)};astddev=sqrt(as/NR);bstddev=sqrt(bs/NR);print sum/NR/astddev/bstddev}'`,
+    );
+    return bash.join(" ");
+  })();
+  const correlationCoefficient = await runner
+    .run(statsCommand);
+  const { println, showHeader, hr } = formatter(
+    24,
+    correlationCoefficient.length,
+  );
+  hasHeader ? showHeader(headerName) : hr();
+  println("correlation-coefficient", correlationCoefficient);
+  hr();
+  Deno.exit(0);
+}
 
 if (hasCheck) {
   const checkCommand = (() => {
