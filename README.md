@@ -48,7 +48,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.13
+VERSION=v1.0.14
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
@@ -77,7 +77,7 @@ Just do it!
 colc 2 some.csv
 ```
 
-<img width="381" alt="スクリーンショット 2022-03-26 23 53 17" src="https://user-images.githubusercontent.com/46414076/160244923-bedc63d3-a516-473f-9cb8-c8c926884c10.png">
+<img width="363" alt="スクリーンショット 2022-03-27 20 06 59" src="https://user-images.githubusercontent.com/46414076/160278636-1a2d2f53-d1b6-41c3-8253-8eaf90683f46.png">
 
 Of course `-b,--binsize` works well:)
 
