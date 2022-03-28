@@ -118,7 +118,7 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));print stddev,avg,sum,NR,d[NR],min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,1+log(NR)/log(2),(3.5*stddev)/(exp(log(NR)/3))}'`,
+      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrt(NR),s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,(max-min)/sturges,(3.5*stddev)/(exp(log(NR)/3)),q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,(max-min)/sqrt(NR),2*iqr/(exp(log(NR)/3))}'`,
     );
     return bash.join(" ");
   })();
@@ -141,6 +141,13 @@ if (binSize === null) {
     sigmaMinus3,
     sturgesBinsize,
     scottBinsize,
+    q1,
+    q3,
+    iqr,
+    lf,
+    uf,
+    sqrtBinsize,
+    fdBinsize
   ] = await runner
     .run(statsCommand).then((s) => s.split(" "));
   const sturgesFormulaIsInvalid = count.split(".")[0].length <= 2 &&
@@ -148,21 +155,28 @@ if (binSize === null) {
   const stats = {
     "count": comma(count),
     "sum": comma(sum),
-    "min": comma(min),
-    "max": comma(max),
     "mean": comma(mean),
-    "median": comma(median),
+    "Q1–(1.5*IQR)": comma(lf),
+    "min": comma(min),
+    "25%(Q1)": comma(q1),
+    "50%": comma(median),
+    "75%(Q3)": comma(q3),
+    "max": comma(max),
+    "Q3+(1.5*IQR)": comma(uf),
+    "IQR(Q3-Q1)": comma(iqr),
     "stddev(σ)": comma(stddev),
     "stderr": comma(stderr),
     "variance(σ^2)": comma(variance),
     "mean±σ(≒68%)": `${comma(sigmaMinus1)}, ${comma(sigmaPlus1)}`,
     "mean±2σ(≒95%)": `${comma(sigmaMinus2)}, ${comma(sigmaPlus2)}`,
     "mean±3σ(≒99%)": `${comma(sigmaMinus3)}, ${comma(sigmaPlus3)}`,
+    "binsize(Square-root)": sqrtBinsize,
     ...(!sturgesFormulaIsInvalid && { "binsize(Sturges')": sturgesBinsize }),
-    ...(scottBinsize && { "binsize(Scott's)": scottBinsize }),
+    "binsize(Scott's)": scottBinsize,
+    "binsize(FD)": fdBinsize,
   };
   const { println, showHeader, hr } = formatter(
-    sturgesFormulaIsInvalid ? 17 : 18,
+    sturgesFormulaIsInvalid ? 20 : 21,
     getMaxLength(stats),
   );
   hasHeader ? showHeader(headerName) : hr();
