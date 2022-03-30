@@ -7,7 +7,21 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const { _, binsize, b, filter, f, check, c, precision, p } = parse(Deno.args);
+const colcVersion = "v1.0.21"
+const colcDescription = `Complete documentation is available at https://github.com/solaoi/colc
+
+Usage:
+  colc [column] [file.csv|tsv|txt]
+
+Options:
+  -c,--check                 : check the column is valid
+  -p,--precision <number>    : set precision, default is 6
+  -b,--binsize <number>      : show frequency table and histogram
+  -f,--filter <number(1-99)> : with binsize option, filter frequency
+  -v,--version               : show version
+  -h,--help                  : show help`
+
+const { _, binsize, b, filter, f, check, c, precision, p, help,h,version,v } = parse(Deno.args);
 const [column, filename] = _;
 const hasTwoColumn = (() => {
   if (typeof column !== "string") return false;
@@ -18,10 +32,20 @@ const hasTwoColumn = (() => {
     Number.isInteger(parseInt(columns[1]));
 })();
 
+if(h !== undefined || help !== undefined ){
+  console.log(colcDescription);
+  Deno.exit(0);
+}
+
+if(v !== undefined || version !== undefined ){
+  console.log(colcVersion);
+  Deno.exit(0);
+}
+
 if (
   (typeof column !== "number" && !hasTwoColumn) || typeof filename !== "string"
 ) {
-  console.log("Usage:\n  colc [column] [file.csv|tsv|txt]");
+  console.log(colcDescription);
   Deno.exit(1);
 }
 const awkPrecision: number = (() => {
