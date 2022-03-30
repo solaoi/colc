@@ -93,7 +93,8 @@ Just do it!
 colc 2 some.csv
 ```
 
-<img width="379" alt="スクリーンショット 2022-03-30 14 50 39" src="https://user-images.githubusercontent.com/46414076/160760624-58a15682-0f64-45b0-8b99-2b3732952971.png">
+<img width="379" alt="スクリーンショット 2022-03-30 18 03 08" src="https://user-images.githubusercontent.com/46414076/160794228-e7f444e9-3cf8-4e3a-96de-2d1df08d2cb5.png">
+
 
 Of course `-b,--binsize` works well:)
 
