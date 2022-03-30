@@ -7,7 +7,7 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const colcVersion = "v1.0.21"
+const colcVersion = "v1.0.22"
 const colcDescription = `Complete documentation is available at https://github.com/solaoi/colc
 
 Usage:
@@ -152,7 +152,7 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'BEGIN{OFMT="%.${awkPrecision}f"}NR==1{min=$1}{if(0==$1)zeros++;if($1<0)neg++;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr,range,zeros,zeros*100/NR,neg,neg*100/NR,stddev/avg}'`,
+      `'BEGIN{OFMT="%.${awkPrecision}f"}NR==1{min=$1}{if(0==$1)zeros++;if($1<0)neg++;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));for(i in d){t+=((d[i]-avg)/stddev)^3;u+=((d[i]-avg)/stddev)^4};q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr,range,zeros,zeros*100/NR,neg,neg*100/NR,stddev/avg,NR*t/((NR-1)*(NR-2)),NR*(NR+1)*u/(NR-1)/(NR-2)/(NR-3)-3*(NR-1)^2/(NR-2)/(NR-3)}'`,
     );
     return bash.join(" ");
   })();
@@ -188,6 +188,8 @@ if (binSize === null) {
     negatives,
     negativeRate,
     cv,
+    skewness,
+    kurtosis
   ] = await runner
     .run(statsCommand).then((s) => s.split(" "));
   const sturgesFormulaIsInvalid = count.split(".")[0].length <= 2 &&
@@ -214,6 +216,10 @@ if (binSize === null) {
     "Q1–(1.5*IQR)": comma(lf),
     "Q3+(1.5*IQR)": comma(uf),
   };
+  const distribution = {
+    "skewness": comma(skewness),
+    "kurtosis": comma(kurtosis)
+  }
   const stds = {
     "stddev(σ)": comma(stddev),
     "stderr": comma(stderr),
@@ -235,6 +241,7 @@ if (binSize === null) {
       ...total,
       ...stats,
       ...iqrs,
+      ...distribution,
       ...stds,
       ...recommendedBinsizes,
     }),
@@ -249,6 +256,10 @@ if (binSize === null) {
   });
   hr();
   Object.entries(iqrs).forEach(([key, value]) => {
+    println(key, value);
+  });
+  hr();
+  Object.entries(distribution).forEach(([key, value]) => {
     println(key, value);
   });
   hr();
