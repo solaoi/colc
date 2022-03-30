@@ -162,9 +162,9 @@ if (binSize === null) {
     "count": comma(count),
     "sum": comma(sum),
     "range": comma(range),
-    "zeros": comma(zeros),
+    "zeros": comma(zeros || "0"),
     "zeros(%)": comma(zeroRate),
-    "negatives": comma(negatives),
+    "negatives": comma(negatives || "0"),
     "negatives(%)": comma(negativeRate)
   }
   const stats = {
