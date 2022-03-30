@@ -21,6 +21,9 @@ you'll get the correlation coefficient of two columns.
 # check the column is valid
 -c,--check
 
+# set precision, default is 6
+-p,--precision <number>
+
 # show frequency table and histogram
 -b,--binsize <number>
 
@@ -53,7 +56,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.15
+VERSION=v1.0.20
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
@@ -86,7 +89,6 @@ colc 2 some.csv
 ```
 
 <img width="379" alt="スクリーンショット 2022-03-30 14 50 39" src="https://user-images.githubusercontent.com/46414076/160760624-58a15682-0f64-45b0-8b99-2b3732952971.png">
-
 
 Of course `-b,--binsize` works well:)
 
