@@ -7,8 +7,9 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const colcVersion = "v1.0.22"
-const colcDescription = `Complete documentation is available at https://github.com/solaoi/colc
+const colcVersion = "v1.0.23";
+const colcDescription =
+  `Complete documentation is available at https://github.com/solaoi/colc
 
 Usage:
   colc [column] [file.csv|tsv|txt]
@@ -19,9 +20,23 @@ Options:
   -b,--binsize <number>      : show frequency table and histogram
   -f,--filter <number(1-99)> : with binsize option, filter frequency
   -v,--version               : show version
-  -h,--help                  : show help`
+  -h,--help                  : show help`;
 
-const { _, binsize, b, filter, f, check, c, precision, p, help,h,version,v } = parse(Deno.args);
+const {
+  _,
+  binsize,
+  b,
+  filter,
+  f,
+  check,
+  c,
+  precision,
+  p,
+  help,
+  h,
+  version,
+  v,
+} = parse(Deno.args);
 const [column, filename] = _;
 const hasTwoColumn = (() => {
   if (typeof column !== "string") return false;
@@ -32,12 +47,12 @@ const hasTwoColumn = (() => {
     Number.isInteger(parseInt(columns[1]));
 })();
 
-if(h !== undefined || help !== undefined ){
+if (h !== undefined || help !== undefined) {
   console.log(colcDescription);
   Deno.exit(0);
 }
 
-if(v !== undefined || version !== undefined ){
+if (v !== undefined || version !== undefined) {
   console.log(colcVersion);
   Deno.exit(0);
 }
@@ -94,7 +109,7 @@ if (hasTwoColumn) {
     }
     bash.push("| awk");
     bash.push(
-      `'BEGIN{OFMT="%.${awkPrecision}f"}{split($1,col,",");asum+=col[1];a[NR]=col[1];bsum+=col[2];b[NR]=col[2]}END{amean=asum/NR;bmean=bsum/NR;for(i in a){as+=(a[i]-amean)^2;bs+=(b[i]-bmean)^2;sum+=(a[i]-amean)*(b[i]-bmean)};astddev=sqrt(as/NR);bstddev=sqrt(bs/NR);print sum/NR/astddev/bstddev}'`,
+      `'BEGIN{OFMT="%.${awkPrecision}f"}{sub(/\r$/,\"\",$1)}{split($1,col,",");asum+=col[1];a[NR]=col[1];bsum+=col[2];b[NR]=col[2]}END{amean=asum/NR;bmean=bsum/NR;for(i in a){as+=(a[i]-amean)^2;bs+=(b[i]-bmean)^2;sum+=(a[i]-amean)*(b[i]-bmean)};astddev=sqrt(as/NR);bstddev=sqrt(bs/NR);print sum/NR/astddev/bstddev}'`,
     );
     return bash.join(" ");
   })();
@@ -123,13 +138,14 @@ if (hasCheck) {
       );
     }
     bash.push(
-      "| awk '{clean=($1 ~/^[0-9.-]+$/);if(!clean)exit}END{print clean}'",
+      "| awk 'BEGIN{dirty=0}{sub(/\r$/,\"\",$1)}!/^-?[0-9]*.?[0-9]+$/{dirty=1;exit}END{print dirty}'",
     );
     return bash.join(" ");
   })();
+
   const result = await runner
     .run(checkCommand);
-  const hasError = result === "0";
+  const hasError = result === "1";
   if (hasError) {
     console.log("dirty:<");
     Deno.exit(1);
@@ -152,7 +168,7 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'BEGIN{OFMT="%.${awkPrecision}f"}NR==1{min=$1}{if(0==$1)zeros++;if($1<0)neg++;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));for(i in d){t+=((d[i]-avg)/stddev)^3;u+=((d[i]-avg)/stddev)^4};q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr,range,zeros,zeros*100/NR,neg,neg*100/NR,stddev/avg,NR*t/((NR-1)*(NR-2)),NR*(NR+1)*u/(NR-1)/(NR-2)/(NR-3)-3*(NR-1)^2/(NR-2)/(NR-3)}'`,
+      `'BEGIN{OFMT="%.${awkPrecision}f"}{sub(/\r$/,\"\",$1)}NR==1{min=$1}{if(0==$1)zeros++;if($1<0)neg++;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));for(i in d){t+=((d[i]-avg)/stddev)^3;u+=((d[i]-avg)/stddev)^4};q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr,range,zeros,zeros*100/NR,neg,neg*100/NR,stddev/avg,NR*t/((NR-1)*(NR-2)),NR*(NR+1)*u/(NR-1)/(NR-2)/(NR-3)-3*(NR-1)^2/(NR-2)/(NR-3)}'`,
     );
     return bash.join(" ");
   })();
@@ -189,7 +205,7 @@ if (binSize === null) {
     negativeRate,
     cv,
     skewness,
-    kurtosis
+    kurtosis,
   ] = await runner
     .run(statsCommand).then((s) => s.split(" "));
   const sturgesFormulaIsInvalid = count.split(".")[0].length <= 2 &&
@@ -218,8 +234,8 @@ if (binSize === null) {
   };
   const distribution = {
     "skewness": comma(skewness),
-    "kurtosis": comma(kurtosis)
-  }
+    "kurtosis": comma(kurtosis),
+  };
   const stds = {
     "stddev(σ)": comma(stddev),
     "stderr": comma(stderr),
@@ -287,7 +303,7 @@ const freqCommand = (() => {
   }
   bash.push("| awk");
   bash.push(
-    `'BEGIN{OFMT="%.${awkPrecision}f"}{b=int($1/${binSize});a[b]++;bmax=b>bmax?b:bmax;bmin=b<bmin?b:bmin}END{freq="";for(i in a)freq=freq "|" i "_" a[i];print NR, freq, bmin, bmax}'`,
+    `'BEGIN{OFMT="%.${awkPrecision}f"}{sub(/\r$/,\"\",$1)}{b=int($1/${binSize});a[b]++;bmax=b>bmax?b:bmax;bmin=b<bmin?b:bmin}END{freq="";for(i in a)freq=freq "|" i "_" a[i];print NR, freq, bmin, bmax}'`,
   );
   return bash.join(" ");
 })();
