@@ -118,7 +118,7 @@ if (binSize === null) {
     }
     bash.push("| sort -n | awk");
     bash.push(
-      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr}'`,
+      `'BEGIN{OFMT="%.6f"}NR==1{min=$1}{if(0==$1)zeros++;if($1<0)neg++;sum+=$1;d[NR]=$1}END{avg=sum/NR;for(i in d)s+=(d[i]-avg)^2;stddev=sqrt(s/(NR-1));q1=(3*d[int((NR-1)/4)+1]+d[int((NR-1)/4)+2])/4;q3=(d[int(3*(NR-1)/4)+1]+3*d[int(3*(NR-1)/4)+2])/4;iqr=q3-q1;stur=1+log(NR)/log(2);sturi=int(stur);sturges=stur>sturi?sturi+1:sturi;max=d[NR];range=max-min;sqrtnr=sqrt(NR);threerootnr=exp(log(NR)/3);print stddev,avg,sum,NR,max,min,sqrt(s/(NR-1))/sqrtnr,s/(NR-1),(NR%2)?d[(NR+1)/2]:(d[NR/2]+d[NR/2+1])/2,avg+stddev,avg-stddev,avg+2*stddev,avg-2*stddev,avg+3*stddev,avg-3*stddev,range/sturges,(3.5*stddev)/threerootnr,q1,q3,iqr,q1-1.5*iqr,q3+1.5*iqr,range/sqrtnr,2*iqr/threerootnr,range,zeros,zeros*100/NR,neg,neg*100/NR,stddev/avg}'`,
     );
     return bash.join(" ");
   })();
@@ -147,40 +147,76 @@ if (binSize === null) {
     lf,
     uf,
     sqrtBinsize,
-    fdBinsize
+    fdBinsize,
+    range,
+    zeros,
+    zeroRate,
+    negatives,
+    negativeRate,
+    cv
   ] = await runner
     .run(statsCommand).then((s) => s.split(" "));
   const sturgesFormulaIsInvalid = count.split(".")[0].length <= 2 &&
     parseInt(count) < 30;
-  const stats = {
+  const total = {
     "count": comma(count),
     "sum": comma(sum),
-    "mean": comma(mean),
-    "Q1–(1.5*IQR)": comma(lf),
+    "range": comma(range),
+    "zeros": comma(zeros),
+    "zeros(%)": comma(zeroRate),
+    "negatives": comma(negatives),
+    "negatives(%)": comma(negativeRate)
+  }
+  const stats = {
     "min": comma(min),
     "25%(Q1)": comma(q1),
-    "50%": comma(median),
+    "median": comma(median),
+    "mean": comma(mean),
     "75%(Q3)": comma(q3),
     "max": comma(max),
-    "Q3+(1.5*IQR)": comma(uf),
+  };
+  const iqrs = {
     "IQR(Q3-Q1)": comma(iqr),
+    "Q1–(1.5*IQR)": comma(lf),
+    "Q3+(1.5*IQR)": comma(uf),
+  }
+  const stds = {
     "stddev(σ)": comma(stddev),
     "stderr": comma(stderr),
+    "CV(σ/mean)": comma(cv),
     "variance(σ^2)": comma(variance),
     "mean±σ(≒68%)": `${comma(sigmaMinus1)}, ${comma(sigmaPlus1)}`,
     "mean±2σ(≒95%)": `${comma(sigmaMinus2)}, ${comma(sigmaPlus2)}`,
     "mean±3σ(≒99%)": `${comma(sigmaMinus3)}, ${comma(sigmaPlus3)}`,
+  }
+  const recommendedBinsizes = {
     "binsize(Square-root)": sqrtBinsize,
     ...(!sturgesFormulaIsInvalid && { "binsize(Sturges')": sturgesBinsize }),
     "binsize(Scott's)": scottBinsize,
     "binsize(FD)": fdBinsize,
-  };
+  }
   const { println, showHeader, hr } = formatter(
     sturgesFormulaIsInvalid ? 20 : 21,
-    getMaxLength(stats),
+    getMaxLength({...total,...stats,...iqrs,...stds,...recommendedBinsizes}),
   );
   hasHeader ? showHeader(headerName) : hr();
+  Object.entries(total).forEach(([key, value]) => {
+    println(key, value);
+  });
+  hr();
   Object.entries(stats).forEach(([key, value]) => {
+    println(key, value);
+  });
+  hr();
+  Object.entries(iqrs).forEach(([key, value]) => {
+    println(key, value);
+  });
+  hr();
+  Object.entries(stds).forEach(([key, value]) => {
+    println(key, value);
+  });
+  hr();
+  Object.entries(recommendedBinsizes).forEach(([key, value]) => {
     println(key, value);
   });
   hr();
