@@ -29,6 +29,12 @@ you'll get the correlation coefficient of two columns.
 
 # with binsize option, filter frequency
 -f,--filter <number(1-99)>
+
+# show version
+-v,--version
+
+# show help
+-h,--help
 ```
 
 ## Feature
