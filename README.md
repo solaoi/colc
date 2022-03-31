@@ -1,4 +1,4 @@
-# Colc
+# Colc (`Co`lumn x Ca`lc`ulation)
 
 Colc is a CommandLineTool to take statistics from a column of a file.
 
@@ -61,7 +61,7 @@ you can download a binary release
 ```sh
 # Install with wget or curl
 ## set the latest version on releases.
-VERSION=v1.0.23
+VERSION=v1.0.24
 ## case you use wget
 wget https://github.com/solaoi/colc/releases/download/$VERSION/colc_linux_amd64.tar.gz
 ## case you use curl
@@ -74,7 +74,7 @@ mv ./colc /usr/local/bin/
 
 ### Example
 
-There is a `tests.csv`.
+There is a `some.csv`.
 
 ```
 Student,Reading,Writing,Math,Science,Social Studies

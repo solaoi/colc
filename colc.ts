@@ -7,7 +7,7 @@ import {
 import { runner } from "./lib/common.ts";
 import { parse } from "https://deno.land/std@0.66.0/flags/mod.ts";
 
-const colcVersion = "v1.0.23";
+const colcVersion = "v1.0.24";
 const colcDescription =
   `Complete documentation is available at https://github.com/solaoi/colc
 
@@ -237,8 +237,8 @@ if (binSize === null) {
     "kurtosis": comma(kurtosis),
   };
   const stds = {
-    "stddev(σ)": comma(stddev),
-    "stderr": comma(stderr),
+    "SD(σ)": comma(stddev),
+    "SE": comma(stderr),
     "CV(σ/mean)": comma(cv),
     "variance(σ^2)": comma(variance),
     "mean±σ(≒68%)": `${comma(sigmaMinus1)}, ${comma(sigmaPlus1)}`,

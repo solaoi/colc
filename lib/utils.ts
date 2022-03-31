@@ -31,7 +31,7 @@ const formatter = (keySpace: number, valueSpace: number, inverse = false) => {
     },
     showHeader: (headerName: string) => {
       const hr = "-".repeat(keySpace + valueSpace + 2);
-      console.log(`${hr}\n${headerName}\n${hr}`);
+      console.log(`${hr}\n${chalk.green(headerName)}\n${hr}`);
     },
     println: (key: string, value: string, rank?: number) => {
       inverse = !inverse;
