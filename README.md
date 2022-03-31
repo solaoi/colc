@@ -93,7 +93,7 @@ Just do it!
 colc 2 some.csv
 ```
 
-<img width="379" alt="スクリーンショット 2022-03-30 18 03 08" src="https://user-images.githubusercontent.com/46414076/160794228-e7f444e9-3cf8-4e3a-96de-2d1df08d2cb5.png">
+<img width="379" alt="スクリーンショット 2022-03-31 18 36 29" src="https://user-images.githubusercontent.com/46414076/161025329-42cb83a4-3908-4416-9dd7-c295ff4c779a.png">
 
 Of course `-b,--binsize` works well:)
 
@@ -101,7 +101,7 @@ Of course `-b,--binsize` works well:)
 colc 2 some.csv -b 25
 ```
 
-<img width="524" alt="スクリーンショット 2022-03-28 18 55 40" src="https://user-images.githubusercontent.com/46414076/160373910-9909e910-a0bf-4717-840e-596dc6758b34.png">
+<img width="524" alt="スクリーンショット 2022-03-31 18 37 21" src="https://user-images.githubusercontent.com/46414076/161025488-271747bf-ebc9-4f8b-a5c6-b3920237557c.png">
 
 There are noises, then filter necessaries(>=1%) with `-f,--filter`
 
@@ -109,7 +109,7 @@ There are noises, then filter necessaries(>=1%) with `-f,--filter`
 colc 2 some.csv -b 25 -f 1
 ```
 
-<img width="524" alt="スクリーンショット 2022-03-28 18 56 23" src="https://user-images.githubusercontent.com/46414076/160374083-3be98d4a-797d-4076-ac14-a76d223c2fc8.png">
+<img width="524" alt="スクリーンショット 2022-03-31 18 37 57" src="https://user-images.githubusercontent.com/46414076/161025582-88c863d8-25b0-43bd-8ad7-28f8d2100e36.png">
 
 If you wanna check whether the file is valid in advance,
 
