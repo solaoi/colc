@@ -1,5 +1,7 @@
 # Colc (`Co`lumn x Ca`lc`ulation)
 
+![license](https://img.shields.io/github/license/solaoi/colc)
+
 Colc is a CommandLineTool to take statistics from a column of a file.
 
 This command depends these commands(`head|tail|cut|sort|awk`) on bash.
